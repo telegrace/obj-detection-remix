@@ -3,10 +3,24 @@ import { Link } from "@remix-run/react"; //this just appends to the end
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
+import styles from "~/global-styles.css";
 
+export function links() {
+  return [
+    {
+      rel: "stylesheet",
+      href: styles,
+    },
+  ];
+}
 // need to move typings
 type VideoRef = React.MutableRefObject<HTMLVideoElement | null>;
 type LiveViewChild = HTMLDivElement | HTMLParagraphElement | null;
+type Prediction = {
+  bbox: [number, number, number, number];
+  class: string;
+  score: number;
+};
 
 const IndexPage: React.FC<any> = () => {
   const videoRef: VideoRef = React.useRef(null);
@@ -16,30 +30,24 @@ const IndexPage: React.FC<any> = () => {
     Array<LiveViewChild>
   >([]);
 
-  //models needs to load, then make the predictWebcam
+  React.useEffect(() => {
+    if (!model) {
+      loadModel();
+    }
+  }, []); //bad practice? Turn this into a hook
+
   React.useEffect(() => {
     console.log("isstreaming", isStreaming);
-    if (!model) {
-      getModel();
-    }
     if (isStreaming) {
       getVideo(); //starts webcam
     }
   }, [isStreaming]);
 
-  const getModel = () => {
+  const loadModel = () => {
     cocoSsd.load().then((loadedModel) => {
       console.log("loadedModel", loadedModel);
       setModel(loadedModel);
     });
-  };
-
-  const predictWebcam = (model: any, video: VideoRef) => {
-    console.log("video", video);
-    // model.detect(video).then(() => {
-    //   console.log("model & video", model, video);
-    // });
-    return model;
   };
 
   const getVideo = () => {
@@ -49,12 +57,60 @@ const IndexPage: React.FC<any> = () => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
-          predictWebcam(model, videoRef);
+          videoRef.current.addEventListener("loadeddata", () => {
+            predictWebcam();
+          });
         }
       })
       .catch((err) => {
         console.error("error:", err); //show error for user
       });
+  };
+
+  const predictWebcam = () => {
+    // error handling for the predictions
+    model.detect(videoRef.current).then((predictions: Array<Prediction>) => {
+      console.log("predictions", predictions);
+      // remove previous bounding boxes
+      setWebcamChildren([]);
+      // add new bounding boxes
+      for (let n = 0; n < predictions.length; n++) {
+        if (predictions[n].score > 0.66) {
+          const p = document.createElement("p");
+          p.innerText =
+            predictions[n].class +
+            " - with " +
+            Math.round(predictions[n].score * 100) +
+            "% confidence.";
+
+          p.style.marginLeft = predictions[n].bbox[0] + "px";
+          p.style.marginTop = predictions[n].bbox[1] - 10 + "px";
+          p.style.width = predictions[n].bbox[2] - 10 + "px";
+          p.style.top = "0";
+          p.style.left = "0";
+
+          setWebcamChildren([...webcamChildren, p]);
+          console.log("webcamChildren", webcamChildren);
+          // const highlighter = document.createElement("div");
+          // highlighter.setAttribute("class", "highlighter");
+          // highlighter.style =
+          //   "left: " +
+          //   predictions[n].bbox[0] +
+          //   "px; top: " +
+          //   predictions[n].bbox[1] +
+          //   "px; width: " +
+          //   predictions[n].bbox[2] +
+          //   "px; height: " +
+          //   predictions[n].bbox[3] +
+          //   "px;";
+
+          // liveView.appendChild(highlighter);
+          // liveView.appendChild(p);
+          // children.push(highlighter);
+          // children.push(p);
+        }
+      }
+    });
   };
 
   const startVideo = () => {
@@ -65,7 +121,7 @@ const IndexPage: React.FC<any> = () => {
     setIsStreaming(false);
     videoRef?.current?.pause();
     const videoStream = videoRef?.current?.srcObject as MediaStream;
-    videoStream.getTracks()[0].stop(); // this stops the webcam
+    videoStream.getTracks()[0].stop();
   };
 
   return (
@@ -93,10 +149,11 @@ const IndexPage: React.FC<any> = () => {
         </div> */}
         <div>
           <div id="liveView" className="camView">
-            {webcamChildren &&
+            {/* {webcamChildren &&
               webcamChildren.map((child: any) => {
+                console.log("child", child);
                 return <>{child}</>;
-              })}
+              })} */}
             {isStreaming && (
               <video autoPlay={isStreaming} muted ref={videoRef} />
             )}
