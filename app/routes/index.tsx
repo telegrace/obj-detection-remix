@@ -4,34 +4,17 @@ import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
-// Object { modelPath: "https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2/model.json", model: {…} }
-// model: Object { modelUrl: "https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2/model.json", loadOptions: {}, version: "undefined.undefined", … }
-// artifacts: Object { modelTopology: {…}, format: undefined, generatedBy: undefined, … }
-// executor: Object { graph: {…}, SEPERATOR: ",", keepTensorForDebug: false, … }
-// handler: Object { DEFAULT_METHOD: "POST", weightPathPrefix: undefined, path: "https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2/model.json", … }
-// loadOptions: Object {  }
-// modelUrl: "https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2/model.json"
-// resourceManager: Object { hashTableNameToHandle: {}, hashTableMap: {} }
-// signature: undefined
-// version: "undefined.undefined"
-
-// interface Props {}
+// need to move typings
 type VideoRef = React.MutableRefObject<HTMLVideoElement | null>;
-interface LoadedModel {
-  modelPath: string;
-  model: {
-    modelUrl: string;
-  };
-  handler: any;
-  loadOptions: {};
-}
+type LiveViewChild = HTMLDivElement | HTMLParagraphElement | null;
 
 const IndexPage: React.FC<any> = () => {
   const videoRef: VideoRef = React.useRef(null);
-  // const liveView = document.getElementById("liveView");
-  // const demosSection = document.getElementById("demos");
   const [isStreaming, setIsStreaming] = React.useState<boolean>(false);
   const [model, setModel] = React.useState<any>(null); //fix this for model
+  const [webcamChildren, setWebcamChildren] = React.useState<
+    Array<LiveViewChild>
+  >([]);
 
   //models needs to load, then make the predictWebcam
   React.useEffect(() => {
@@ -41,8 +24,6 @@ const IndexPage: React.FC<any> = () => {
     }
     if (isStreaming) {
       getVideo(); //starts webcam
-    } else {
-      videoRef?.current?.pause(); // this stops the webcam
     }
   }, [isStreaming]);
 
@@ -53,7 +34,11 @@ const IndexPage: React.FC<any> = () => {
     });
   };
 
-  const predictWebcam = (model: string) => {
+  const predictWebcam = (model: any, video: VideoRef) => {
+    console.log("video", video);
+    // model.detect(video).then(() => {
+    //   console.log("model & video", model, video);
+    // });
     return model;
   };
 
@@ -64,6 +49,7 @@ const IndexPage: React.FC<any> = () => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
+          predictWebcam(model, videoRef);
         }
       })
       .catch((err) => {
@@ -77,6 +63,9 @@ const IndexPage: React.FC<any> = () => {
 
   const stopVideo = () => {
     setIsStreaming(false);
+    videoRef?.current?.pause();
+    const videoStream = videoRef?.current?.srcObject as MediaStream;
+    videoStream.getTracks()[0].stop(); // this stops the webcam
   };
 
   return (
@@ -104,6 +93,10 @@ const IndexPage: React.FC<any> = () => {
         </div> */}
         <div>
           <div id="liveView" className="camView">
+            {webcamChildren &&
+              webcamChildren.map((child: any) => {
+                return <>{child}</>;
+              })}
             {isStreaming && (
               <video autoPlay={isStreaming} muted ref={videoRef} />
             )}
@@ -112,7 +105,9 @@ const IndexPage: React.FC<any> = () => {
           {isStreaming ? (
             <button onClick={stopVideo}>Stop Webcam</button>
           ) : (
-            <button onClick={startVideo}>Start Webcam</button>
+            <button onClick={startVideo} disabled={!model}>
+              Start Webcam
+            </button>
           )}
         </div>
       </section>
