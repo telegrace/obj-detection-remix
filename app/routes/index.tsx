@@ -36,9 +36,14 @@ const IndexPage: React.FC<any> = () => {
   }, []);
 
   React.useEffect(() => {
-    console.log("GRACE", isStreaming);
     if (isStreaming) {
       getVideo();
+    } else {
+      if (videoRef.current) {
+        videoRef?.current?.pause();
+        const videoStream = videoRef?.current?.srcObject as MediaStream;
+        videoStream.getTracks()[0].stop();
+      }
     }
   }, [isStreaming]);
 
@@ -67,7 +72,7 @@ const IndexPage: React.FC<any> = () => {
   };
 
   const predictWebcam = (model: cocoSsd.ObjectDetection) => {
-    if (isStreaming) {
+    if (videoRef.current) {
       model
         .detect(videoRef.current as HTMLVideoElement)
         .then((predictions: Array<Prediction>) => {
@@ -101,7 +106,6 @@ const IndexPage: React.FC<any> = () => {
           console.log("predictWebcam error: ", err);
           return;
         });
-      console.log("isStreaming", isStreaming);
       window.requestAnimationFrame(() => {
         predictWebcam(model);
       });
@@ -114,9 +118,6 @@ const IndexPage: React.FC<any> = () => {
 
   const stopVideo = () => {
     setIsStreaming(false);
-    videoRef?.current?.pause();
-    const videoStream = videoRef?.current?.srcObject as MediaStream;
-    videoStream.getTracks()[0].stop();
   };
 
   return (
