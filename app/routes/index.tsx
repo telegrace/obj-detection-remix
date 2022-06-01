@@ -3,34 +3,25 @@ import { Link } from "@remix-run/react"; //this just appends to the end
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
-import styles from "~/global-styles.css";
+import stylesUrl from "~/global-styles.css";
+import { Prediction, VideoRef } from "~/typings";
+import { LinksFunction, MetaFunction } from "@remix-run/node";
 
-export function links() {
-  return [
-    {
-      rel: "stylesheet",
-      href: styles,
-    },
-  ];
-}
-// need to move typings
-type VideoRef = React.MutableRefObject<HTMLVideoElement | null>;
-type LiveViewChild = HTMLDivElement | HTMLParagraphElement | null;
-type Prediction = {
-  bbox: [number, number, number, number];
-  class: string;
-  score: number;
-  confidence?: number;
-  HTMLStyle?: string;
+export const links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: stylesUrl }];
 };
+
+export const meta: MetaFunction = () => ({
+  title: "Multi-Object Detection",
+  description: "Multi-Object Detection with Tensorflow.js",
+});
 
 const IndexPage: React.FC<any> = () => {
   const videoRef: VideoRef = React.useRef(null);
   const [isStreaming, setIsStreaming] = React.useState<boolean>(false);
-  const [model, setModel] = React.useState<any>(null); //fix this for model
-  const [webcamChildren, setWebcamChildren] = React.useState<
-    Array<LiveViewChild>
-  >([]);
+  const [model, setModel] = React.useState<cocoSsd.ObjectDetection | null>(
+    null
+  ); //fix this for model
   const [predictions, setPredictions] = React.useState<Array<Prediction>>([]);
 
   React.useEffect(() => {
@@ -48,7 +39,6 @@ const IndexPage: React.FC<any> = () => {
 
   const loadModel = () => {
     cocoSsd.load().then((loadedModel) => {
-      console.log("loadedModel", loadedModel);
       setModel(loadedModel);
     });
   };
@@ -71,49 +61,20 @@ const IndexPage: React.FC<any> = () => {
   };
 
   const predictWebcam = () => {
-    // error handling for the predictions
-    model.detect(videoRef.current).then((predictions: Array<Prediction>) => {
-      // console.log("predictions", predictions);
-      // remove previous bounding boxes
-      // add new bounding boxes
-      for (let n = 0; n < predictions.length; n++) {
-        if (predictions[n].score > 0.66) {
-          predictions[n].confidence = Math.round(predictions[n].score * 100);
-          setPredictions(predictions);
-
-          // const p = document.createElement("p");
-          // p.innerText =
-          //   predictions[n].class +
-          //   " - with " +
-          //   Math.round(predictions[n].score * 100) +
-          //   "% confidence.";
-
-          // p.style.marginLeft = predictions[n].bbox[0] + "px";
-          // p.style.marginTop = predictions[n].bbox[1] - 10 + "px";
-          // p.style.width = predictions[n].bbox[2] - 10 + "px";
-          // p.style.top = "0";
-          // p.style.left = "0";
-
-          // const highlighter = document.createElement("div");
-          // highlighter.setAttribute("class", "highlighter");
-          // highlighter.style =
-          //   "left: " +
-          //   predictions[n].bbox[0] +
-          //   "px; top: " +
-          //   predictions[n].bbox[1] +
-          //   "px; width: " +
-          //   predictions[n].bbox[2] +
-          //   "px; height: " +
-          //   predictions[n].bbox[3] +
-          //   "px;";
-
-          // liveView.appendChild(highlighter);
-          // liveView.appendChild(p);
-          // children.push(highlighter);
-          // children.push(p);
-        }
-      }
-    });
+    if (model) {
+      model
+        .detect(videoRef.current as HTMLVideoElement)
+        .then((predictions: Array<Prediction>) => {
+          for (let n = 0; n < predictions.length; n++) {
+            if (predictions[n].score > 0.66) {
+              predictions[n].confidence = Math.round(
+                predictions[n].score * 100
+              );
+              setPredictions(predictions);
+            }
+          }
+        });
+    }
   };
 
   const startVideo = () => {
@@ -147,7 +108,8 @@ const IndexPage: React.FC<any> = () => {
         </p>
         <div>
           <div id="liveView" className="camView">
-            {predictions &&
+            {isStreaming &&
+              predictions &&
               predictions.map((prediction: Prediction, index) => {
                 return (
                   <>

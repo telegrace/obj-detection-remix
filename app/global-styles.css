@@ -1,12 +1,7 @@
 body {
-  font-family: helvetica, arial, sans-serif;
+  font-family: monospace;
   margin: 2em;
   color: #3d3d3d;
-}
-
-h1 {
-  font-style: italic;
-  color: #ff6f00;
 }
 
 video {
@@ -16,14 +11,6 @@ video {
 section {
   opacity: 1;
   transition: opacity 500ms ease-in-out;
-}
-
-.removed {
-  display: none;
-}
-
-.invisible {
-  opacity: 0.2;
 }
 
 .camView {
