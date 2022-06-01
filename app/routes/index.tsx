@@ -31,7 +31,7 @@ const IndexPage: React.FC<any> = () => {
   }, []); //bad practice? Turn this into a hook
 
   React.useEffect(() => {
-    console.log("isstreaming", isStreaming);
+    // console.log("isstreaming", isStreaming);
     if (isStreaming) {
       getVideo(); //starts webcam
     }
@@ -74,6 +74,7 @@ const IndexPage: React.FC<any> = () => {
             }
           }
         });
+      window.requestAnimationFrame(predictWebcam);
     }
   };
 
