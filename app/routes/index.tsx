@@ -20,6 +20,8 @@ type Prediction = {
   bbox: [number, number, number, number];
   class: string;
   score: number;
+  confidence?: number;
+  HTMLStyle?: string;
 };
 
 const IndexPage: React.FC<any> = () => {
@@ -29,6 +31,7 @@ const IndexPage: React.FC<any> = () => {
   const [webcamChildren, setWebcamChildren] = React.useState<
     Array<LiveViewChild>
   >([]);
+  const [predictions, setPredictions] = React.useState<Array<Prediction>>([]);
 
   React.useEffect(() => {
     if (!model) {
@@ -70,27 +73,27 @@ const IndexPage: React.FC<any> = () => {
   const predictWebcam = () => {
     // error handling for the predictions
     model.detect(videoRef.current).then((predictions: Array<Prediction>) => {
-      console.log("predictions", predictions);
+      // console.log("predictions", predictions);
       // remove previous bounding boxes
-      setWebcamChildren([]);
       // add new bounding boxes
       for (let n = 0; n < predictions.length; n++) {
         if (predictions[n].score > 0.66) {
-          const p = document.createElement("p");
-          p.innerText =
-            predictions[n].class +
-            " - with " +
-            Math.round(predictions[n].score * 100) +
-            "% confidence.";
+          predictions[n].confidence = Math.round(predictions[n].score * 100);
+          setPredictions(predictions);
 
-          p.style.marginLeft = predictions[n].bbox[0] + "px";
-          p.style.marginTop = predictions[n].bbox[1] - 10 + "px";
-          p.style.width = predictions[n].bbox[2] - 10 + "px";
-          p.style.top = "0";
-          p.style.left = "0";
+          // const p = document.createElement("p");
+          // p.innerText =
+          //   predictions[n].class +
+          //   " - with " +
+          //   Math.round(predictions[n].score * 100) +
+          //   "% confidence.";
 
-          setWebcamChildren([...webcamChildren, p]);
-          console.log("webcamChildren", webcamChildren);
+          // p.style.marginLeft = predictions[n].bbox[0] + "px";
+          // p.style.marginTop = predictions[n].bbox[1] - 10 + "px";
+          // p.style.width = predictions[n].bbox[2] - 10 + "px";
+          // p.style.top = "0";
+          // p.style.left = "0";
+
           // const highlighter = document.createElement("div");
           // highlighter.setAttribute("class", "highlighter");
           // highlighter.style =
@@ -142,23 +145,41 @@ const IndexPage: React.FC<any> = () => {
           access to the webcam when the browser asks (check the top left of your
           window)
         </p>
-
-        {/* <div id="liveView" className="camView">
-          <button id="webcamButton">Enable Webcam</button>
-          <video id="webcam" autoPlay muted width="640" height="480"></video>
-        </div> */}
         <div>
           <div id="liveView" className="camView">
-            {/* {webcamChildren &&
-              webcamChildren.map((child: any) => {
-                console.log("child", child);
-                return <>{child}</>;
-              })} */}
+            {predictions &&
+              predictions.map((prediction: Prediction, index) => {
+                return (
+                  <>
+                    <div
+                      className="highlighter"
+                      style={{
+                        left: prediction.bbox[0] + "px",
+                        top: prediction.bbox[1] + "px",
+                        width: prediction.bbox[2] + "px",
+                        height: prediction.bbox[3] + "px",
+                      }}
+                    ></div>
+                    <p
+                      key={index}
+                      style={{
+                        marginLeft: prediction.bbox[0] + "px",
+                        marginTop: prediction.bbox[1] - 10 + "px",
+                        width: prediction.bbox[2] - 10 + "px",
+                        top: 0,
+                        left: 0,
+                      }}
+                    >
+                      {prediction.class} with {prediction.confidence}%
+                      confidence.
+                    </p>
+                  </>
+                );
+              })}
             {isStreaming && (
               <video autoPlay={isStreaming} muted ref={videoRef} />
             )}
           </div>
-
           {isStreaming ? (
             <button onClick={stopVideo}>Stop Webcam</button>
           ) : (
