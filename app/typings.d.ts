@@ -5,5 +5,8 @@ export type Prediction = {
   class: string;
   score: number;
   confidence?: number;
-  HTMLStyle?: string;
+  HTMLStyle?: {
+    highlighter: {};
+    p: {};
+  };
 };

@@ -6,7 +6,13 @@ import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import stylesUrl from "~/global-styles.css";
 import { Prediction, VideoRef } from "~/typings";
 import { LinksFunction, MetaFunction } from "@remix-run/node";
+import WebcamBtn from "~/components/WebcamBtn";
+import PredictionsOverlay from "~/components/PredictionsOverlay";
 
+type Model = {
+  loadedModel: cocoSsd.ObjectDetection | null;
+  isloaded: boolean;
+};
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
@@ -19,27 +25,33 @@ export const meta: MetaFunction = () => ({
 const IndexPage: React.FC<any> = () => {
   const videoRef: VideoRef = React.useRef(null);
   const [isStreaming, setIsStreaming] = React.useState<boolean>(false);
-  const [model, setModel] = React.useState<cocoSsd.ObjectDetection | null>(
-    null
-  ); //fix this for model
+  const [model, setModel] = React.useState<Model>({
+    loadedModel: null,
+    isloaded: false,
+  });
   const [predictions, setPredictions] = React.useState<Array<Prediction>>([]);
 
   React.useEffect(() => {
-    if (!model) {
+    if (!model.isloaded) {
       loadModel();
     }
-  }, []); //bad practice? Turn this into a hook
+  }, []);
 
   React.useEffect(() => {
-    // console.log("isstreaming", isStreaming);
     if (isStreaming) {
-      getVideo(); //starts webcam
+      getVideo();
+    } else {
+      if (videoRef.current) {
+        videoRef?.current?.pause();
+        const videoStream = videoRef?.current?.srcObject as MediaStream;
+        videoStream.getTracks()[0].stop();
+      }
     }
   }, [isStreaming]);
 
   const loadModel = () => {
     cocoSsd.load().then((loadedModel) => {
-      setModel(loadedModel);
+      setModel({ loadedModel: loadedModel, isloaded: true });
     });
   };
 
@@ -51,30 +63,56 @@ const IndexPage: React.FC<any> = () => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           videoRef.current.addEventListener("loadeddata", () => {
-            predictWebcam();
+            if (model.loadedModel && isStreaming) {
+              // console.log("videoRef.current", videoRef.current); // this keeps the webcam running?
+              predictWebcam(model.loadedModel);
+            }
           });
         }
       })
       .catch((err) => {
-        console.error("error:", err); //show error for user
+        console.log("getVideo error: ", err);
       });
   };
 
-  const predictWebcam = () => {
-    if (model) {
+  const predictWebcam = (model: cocoSsd.ObjectDetection) => {
+    if (videoRef.current) {
       model
         .detect(videoRef.current as HTMLVideoElement)
         .then((predictions: Array<Prediction>) => {
           for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.66) {
-              predictions[n].confidence = Math.round(
-                predictions[n].score * 100
-              );
+              const { bbox, score } = predictions[n];
+
+              predictions[n].confidence = Math.round(score * 100);
+
+              const highlighter = {
+                left: bbox[0] + "px",
+                top: bbox[1] + "px",
+                width: bbox[2] + "px",
+                height: bbox[3] + "px",
+              };
+              const p = {
+                marginLeft: bbox[0] + "px",
+                marginTop: bbox[1] - 10 + "px",
+                width: bbox[2] - 10 + "px",
+                top: 0,
+                left: 0,
+              };
+
+              predictions[n].HTMLStyle = { highlighter, p };
+
               setPredictions(predictions);
             }
           }
+        })
+        .catch((err) => {
+          console.log("predictWebcam error: ", err);
+          return;
         });
-      window.requestAnimationFrame(predictWebcam);
+      window.requestAnimationFrame(() => {
+        predictWebcam(model);
+      });
     }
   };
 
@@ -84,9 +122,6 @@ const IndexPage: React.FC<any> = () => {
 
   const stopVideo = () => {
     setIsStreaming(false);
-    videoRef?.current?.pause();
-    const videoStream = videoRef?.current?.srcObject as MediaStream;
-    videoStream.getTracks()[0].stop();
   };
 
   return (
@@ -109,47 +144,17 @@ const IndexPage: React.FC<any> = () => {
         </p>
         <div>
           <div id="liveView" className="camView">
-            {isStreaming &&
-              predictions &&
-              predictions.map((prediction: Prediction, index) => {
-                return (
-                  <>
-                    <div
-                      className="highlighter"
-                      style={{
-                        left: prediction.bbox[0] + "px",
-                        top: prediction.bbox[1] + "px",
-                        width: prediction.bbox[2] + "px",
-                        height: prediction.bbox[3] + "px",
-                      }}
-                    ></div>
-                    <p
-                      key={index}
-                      style={{
-                        marginLeft: prediction.bbox[0] + "px",
-                        marginTop: prediction.bbox[1] - 10 + "px",
-                        width: prediction.bbox[2] - 10 + "px",
-                        top: 0,
-                        left: 0,
-                      }}
-                    >
-                      {prediction.class} with {prediction.confidence}%
-                      confidence.
-                    </p>
-                  </>
-                );
-              })}
-            {isStreaming && (
-              <video autoPlay={isStreaming} muted ref={videoRef} />
+            <WebcamBtn
+              isStreaming={isStreaming}
+              stopVideo={stopVideo}
+              startVideo={startVideo}
+              modelLoaded={model.isloaded}
+            />
+            {isStreaming && predictions && (
+              <PredictionsOverlay predictions={predictions} />
             )}
+            {isStreaming && <video muted ref={videoRef} />}
           </div>
-          {isStreaming ? (
-            <button onClick={stopVideo}>Stop Webcam</button>
-          ) : (
-            <button onClick={startVideo} disabled={!model}>
-              Start Webcam
-            </button>
-          )}
         </div>
       </section>
 
