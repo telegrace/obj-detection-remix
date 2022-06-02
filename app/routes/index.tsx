@@ -6,6 +6,8 @@ import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import stylesUrl from "~/global-styles.css";
 import { Prediction, VideoRef } from "~/typings";
 import { LinksFunction, MetaFunction } from "@remix-run/node";
+import WebcamBtn from "~/components/WebcamBtn";
+import PredictionsOverlay from "~/components/PredictionsOverlay";
 
 type Model = {
   loadedModel: cocoSsd.ObjectDetection | null;
@@ -61,13 +63,15 @@ const IndexPage: React.FC<any> = () => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           videoRef.current.addEventListener("loadeddata", () => {
-            if (model.loadedModel && isStreaming)
+            if (model.loadedModel && isStreaming) {
+              // console.log("videoRef.current", videoRef.current); // this keeps the webcam running?
               predictWebcam(model.loadedModel);
+            }
           });
         }
       })
       .catch((err) => {
-        console.log("getVideo error: ", err); //show error for user
+        console.log("getVideo error: ", err);
       });
   };
 
@@ -140,32 +144,16 @@ const IndexPage: React.FC<any> = () => {
         </p>
         <div>
           <div id="liveView" className="camView">
-            {isStreaming ? (
-              <button onClick={stopVideo}>Stop Webcam</button>
-            ) : (
-              <button onClick={startVideo} disabled={!model.isloaded}>
-                Start Webcam
-              </button>
+            <WebcamBtn
+              isStreaming={isStreaming}
+              stopVideo={stopVideo}
+              startVideo={startVideo}
+              modelLoaded={model.isloaded}
+            />
+            {isStreaming && predictions && (
+              <PredictionsOverlay predictions={predictions} />
             )}
-            {isStreaming &&
-              predictions &&
-              predictions.map((prediction: Prediction) => {
-                return (
-                  <div key={prediction.bbox[0]}>
-                    <div
-                      className="highlighter"
-                      style={prediction?.HTMLStyle?.highlighter}
-                    ></div>
-                    <p style={prediction?.HTMLStyle?.p}>
-                      {prediction.class} with {prediction.confidence}%
-                      confidence.
-                    </p>
-                  </div>
-                );
-              })}
-            {isStreaming && (
-              <video autoPlay={isStreaming} muted ref={videoRef} />
-            )}
+            {isStreaming && <video muted ref={videoRef} />}
           </div>
         </div>
       </section>
