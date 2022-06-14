@@ -11,3 +11,13 @@ export type Prediction = {
     p: {};
   };
 };
+
+type CanvasCoords = {
+  x: number;
+  y: number;
+};
+
+type PenObj = {
+  position: CanvasCoords;
+  isDrawing: boolean;
+};

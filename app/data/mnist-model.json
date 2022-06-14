@@ -91,7 +91,7 @@
   "convertedBy": null,
   "weightsManifest": [
     {
-      "paths": ["./my-model.weights.bin"],
+      "paths": ["./mnist-model.weights.bin"],
       "weights": [
         {
           "name": "dense_Dense1/kernel",
