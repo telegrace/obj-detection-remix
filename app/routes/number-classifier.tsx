@@ -30,7 +30,7 @@ const NumberClassifier: React.FC<any> = (props) => {
   const canvasRef: CanvasRef = React.useRef(null);
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext("2d");
-
+  const WIDTH = 128;
   //canvas state
 
   const [pen, setPen] = React.useState<PenObj>({
@@ -43,7 +43,6 @@ const NumberClassifier: React.FC<any> = (props) => {
       let x = e.clientX - canvas.offsetLeft;
       let y = e.clientY - canvas.offsetTop;
       setPen({ ...pen, position: { x, y } });
-      console.log("position", pen.position);
     }
   };
 
@@ -61,25 +60,27 @@ const NumberClassifier: React.FC<any> = (props) => {
   const draw = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (!pen.isDrawing) return;
     if (ctx) {
+      getPosition(e);
       ctx.beginPath();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 8;
       ctx.lineCap = "round";
       ctx.strokeStyle = "black";
       ctx.moveTo(pen.position.x, pen.position.y);
-      getPosition(e);
       ctx.lineTo(pen.position.x, pen.position.y);
       ctx.stroke();
     }
   };
 
-  React.useEffect(() => {}, [pen]);
+  // React.useEffect(() => {
+  //   console.log("window.devicePixelRatio", window.devicePixelRatio);
+  // }, [pen]);
   return (
     <>
       <h1>TensorFlow.js MNIST classifier</h1>
       <canvas
         id="canvas"
-        width="128"
-        height="128"
+        width={WIDTH}
+        height={WIDTH}
         ref={canvasRef}
         {...props}
         onMouseDown={(e) => {
@@ -88,11 +89,20 @@ const NumberClassifier: React.FC<any> = (props) => {
         onMouseUp={() => {
           stopDrawing();
         }}
-        onMouseMove={(e) => {
+        onMouseMove={(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
           draw(e);
         }}
+        onDrag={() => {
+          console.log("drag");
+        }}
       />
-      <button>Clear Canvas</button>
+      <button
+        onClick={() => {
+          ctx?.clearRect(0, 0, WIDTH, WIDTH);
+        }}
+      >
+        Clear Canvas
+      </button>
       <button>Submit</button>
     </>
   );
