@@ -37,7 +37,6 @@ const CanvasComponent: React.FC<any> = (props) => {
   React.useEffect(() => {
     if (!model.isloaded) {
       loadModel();
-      console.log("model", model.loadedModel);
     }
   }, []);
 
@@ -49,38 +48,13 @@ const CanvasComponent: React.FC<any> = (props) => {
     );
   };
 
-  const handleTest = () => {
-    console.log("GRACE", JSON.stringify("../public/data/mnist-model.json"));
-  };
-
   const [pen, setPen] = React.useState<PenObj>({
     position: { x: 0, y: 0 },
     isDrawing: false,
   });
 
-  const getPosition = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    if (canvas) {
-      let x = e.clientX - canvas.offsetLeft;
-      let y = e.clientY - canvas.offsetTop;
-      setPen({ ...pen, position: { x, y } });
-    }
-  };
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    console.log("startDrawing");
-    setPen({ ...pen, isDrawing: true });
-    getPosition(e);
-  };
-
-  const stopDrawing = () => {
-    console.log("stopDrawing");
-    setPen({ ...pen, isDrawing: false });
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    if (!pen.isDrawing) return;
-    if (ctx) {
-      getPosition(e);
+  React.useEffect(() => {
+    if (pen.isDrawing && ctx) {
       ctx.beginPath();
       ctx.lineWidth = 10;
       ctx.lineCap = "round";
@@ -89,23 +63,28 @@ const CanvasComponent: React.FC<any> = (props) => {
       ctx.lineTo(pen.position.x, pen.position.y);
       ctx.stroke();
     }
-  };
+  }, [pen]);
 
   return (
-    <>
+    <div
+      onMouseUp={() => {
+        setPen({ ...pen, isDrawing: false });
+      }}
+    >
       <canvas
         id="canvas"
         width={WIDTH}
         height={WIDTH}
         ref={canvasRef}
-        onMouseDown={(e) => {
-          startDrawing(e);
-        }}
-        onMouseUp={() => {
-          stopDrawing();
+        onMouseDown={() => {
+          setPen({ ...pen, isDrawing: true });
         }}
         onMouseMove={(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-          draw(e);
+          if (canvas) {
+            let x = e.clientX - canvas.offsetLeft;
+            let y = e.clientY - canvas.offsetTop;
+            setPen({ ...pen, position: { x, y } });
+          }
         }}
       />
       <button
@@ -116,7 +95,7 @@ const CanvasComponent: React.FC<any> = (props) => {
         Clear Canvas
       </button>
       <button>Predict</button>
-    </>
+    </div>
   );
 };
 
