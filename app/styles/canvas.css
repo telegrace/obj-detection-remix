@@ -1,7 +1,8 @@
 canvas {
   display: block;
-  width: 128px;
-  height: 128px;
-  margin: 10px auto 5px auto;
+  width: 280px;
+  height: 280px;
+  /* margin: 10px auto 5px auto; */
   border: solid black 3px;
+  /* background-color: black; */
 }
