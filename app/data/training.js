@@ -102,15 +102,15 @@ function drawImage(digit) {
   setTimeout(evaluate, interval);
 }
 
-var interval = 2000;
-const RANGER = document.getElementById("ranger");
-const DOM_SPEED = document.getElementById("domSpeed");
+let interval = 3000;
+// const RANGER = document.getElementById("ranger");
+// const DOM_SPEED = document.getElementById("domSpeed");
 
 // When user drags slider update interval.
-RANGER.addEventListener("input", function (e) {
-  interval = this.value;
-  DOM_SPEED.innerText =
-    "Change speed of classification! Currently: " + interval + "ms";
-});
+// RANGER.addEventListener("input", function (e) {
+//   interval = this.value;
+//   DOM_SPEED.innerText =
+//     "Change speed of classification! Currently: " + interval + "ms";
+// });
 
-await model.save("downloads://my-model");
+// await model.save("downloads://my-model");

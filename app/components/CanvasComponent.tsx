@@ -1,11 +1,8 @@
-// import { trainingData } from "~/data/mnist";
-
 import React from "react";
 import * as tf from "@tensorflow/tfjs";
 import { CanvasRef, PenObj } from "~/typings";
 import { LinksFunction, MetaFunction } from "@remix-run/node";
 import stylesUrl from "~/styles/canvas.css";
-import { reshape } from "@tensorflow/tfjs";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
@@ -58,13 +55,14 @@ const CanvasComponent: React.FC<any> = (props) => {
     }
   }, [pen]);
 
+  // const MODEL_PATH = "http://127.0.0.1:8080/mnist-model.json"
+  const MODEL_PATH = "http://127.0.0.1:8080/model.json";
+
   const loadModel = () => {
-    tf.loadLayersModel("http://127.0.0.1:8080/mnist-model.json").then(
-      (loadedModel) => {
-        console.log("loadedModel", loadedModel);
-        setModel({ loadedModel, isloaded: true });
-      }
-    );
+    tf.loadLayersModel(MODEL_PATH).then((loadedModel) => {
+      console.log("loadedModel", loadedModel);
+      setModel({ loadedModel, isloaded: true });
+    });
   };
 
   const handlePredictButton = () => {
@@ -73,16 +71,16 @@ const CanvasComponent: React.FC<any> = (props) => {
     if (imageData) {
       const tensor = tf.tensor(imageData.data);
       const reshapedTensor = tensor.reshape([280, 280, 4]);
-      reshapedTensor.print();
-      const alphaChannel = reshapedTensor
-        .resizeBilinear([28, 28])
-        .slice([0, 0, 3], [28, 28, 1])
-        .squeeze()
-        .reshape([1, 28 * 28]); // //omit chanels imgs have 3/4 channels
-      alphaChannel.print();
-      console.log(alphaChannel.shape);
+      const alphaChannelInput = reshapedTensor
+        .resizeBilinear([28, 28]) // resize to 28x28
+        .slice([0, 0, 3], [28, 28, 1]) // get the alpha channel
+        .squeeze() // remove the extra dimension
+        .reshape([1, 28 * 28]) // reshape to a 1D tensor
+        .div(255); // normalize to [0, 1]
+      // .sub(1)
+      // .abs(); // //omit chanels imgs have 3/4 channels
 
-      model.loadedModel.predict(alphaChannel).print();
+      model.loadedModel.predict(alphaChannelInput).print();
     }
   };
 
