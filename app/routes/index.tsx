@@ -1,9 +1,4 @@
 import { Link } from "@remix-run/react";
-import styles from "~/styles/app.css";
-
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
 
 const LandingPage: React.FC<any> = () => {
   return (
