@@ -1,5 +1,3 @@
-//train and
-
 import { trainingData } from "~/data/mnist";
 
 const inputs = trainingData.inputs;
@@ -10,14 +8,14 @@ tf.util.shuffleCombo(inputs, outputs);
 const inputsTensor = tf.tensor2d(inputs);
 const outputsTensor = tf.oneHot(tf.tensor1d(outputs, "int32"), 10);
 
-// Now actually create and define model architecture.
+//create and define model architecture.
 const model = tf.sequential();
 
 model.add(
   tf.layers.dense({ inputShape: [784], units: 32, activation: "relu" })
 );
-//model.add(tf.layers.batchNormalization());
-//model.add(tf.layers.dropout({ rate: 0.5 }));
+model.add(tf.layers.batchNormalization()); //this makes the weights more homogeneous.
+// model.add(tf.layers.dropout({ rate: 0.5 })); //gets rid of overfitting, but not really needed with batchNormalization
 
 model.add(tf.layers.dense({ units: 16, activation: "relu" }));
 
@@ -25,7 +23,9 @@ model.add(tf.layers.dense({ units: 10, activation: "softmax" }));
 
 model.summary();
 
-train();
+await train();
+
+await model.save("downloads://model");
 
 async function train() {
   // Compile the model with the defined optimizer and specify a loss function to use.
@@ -35,12 +35,12 @@ async function train() {
     metrics: ["accuracy"], // As this is a classifcation problem you can ask to record accuracy in the logs too!
   });
 
-  // Finally do the training itself
+  // the training itself
   let results = await model.fit(inputsTensor, outputsTensor, {
-    shuffle: true, // Ensure data is shuffled again before using each time.
+    shuffle: true,
     validationSplit: 0.2,
     batchSize: 512, // Update weights after every 512 examples.
-    epochs: 50, // Go over the data 50 times!
+    epochs: 50,
     callbacks: { onEpochEnd: logProgress },
   });
 
@@ -51,9 +51,9 @@ async function train() {
   evaluate();
 }
 
-function logProgress(epoch, logs) {
+const logProgress = (epoch, logs) => {
   console.log("Data for epoch " + epoch, logs);
-}
+};
 
 const PREDICTION_ELEMENT = document.getElementById("prediction");
 
@@ -98,19 +98,7 @@ function drawImage(digit) {
   // Render the updated array of data to the canvas itself.
   CTX.putImageData(imageData, 0, 0);
 
-  // Perform a new classification after a certain interval.
   setTimeout(evaluate, interval);
 }
 
 let interval = 3000;
-// const RANGER = document.getElementById("ranger");
-// const DOM_SPEED = document.getElementById("domSpeed");
-
-// When user drags slider update interval.
-// RANGER.addEventListener("input", function (e) {
-//   interval = this.value;
-//   DOM_SPEED.innerText =
-//     "Change speed of classification! Currently: " + interval + "ms";
-// });
-
-// await model.save("downloads://my-model");

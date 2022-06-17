@@ -102,6 +102,7 @@ const CanvasComponent: React.FC<any> = (props) => {
 
   return (
     <>
+      <p>Draw a single digit and run inference with the Predict button.</p>
       <div
         onMouseUp={() => {
           setPen({ ...pen, isDrawing: false });

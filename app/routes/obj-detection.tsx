@@ -159,10 +159,14 @@ const IndexPage: React.FC<any> = () => {
       </section>
 
       <p>
-        Further reading for{" "}
-        <Link to="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd">
+        Further reading for
+        <a
+          target="_blank"
+          href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
+          rel="noreferrer"
+        >
           COCO-SSD model
-        </Link>
+        </a>
         .
       </p>
     </>

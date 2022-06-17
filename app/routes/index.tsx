@@ -1,11 +1,14 @@
-// interface Props {}
-
 import { Link } from "@remix-run/react";
+import styles from "~/styles/app.css";
+
+export function links() {
+  return [{ rel: "stylesheet", href: styles }];
+}
 
 const LandingPage: React.FC<any> = () => {
   return (
     <>
-      <h1>TensorFlow.js</h1>
+      <h1 className="text-3xl font-bold underline">TensorFlow.js</h1>
       <p>Explore</p>
       <ul>
         <li>
