@@ -1,4 +1,5 @@
 export type VideoRef = React.MutableRefObject<HTMLVideoElement | null>;
+export type CanvasRef = React.MutableRefObject<HTMLCanvasElement | null>;
 
 export type Prediction = {
   bbox: [number, number, number, number];
@@ -9,4 +10,14 @@ export type Prediction = {
     highlighter: {};
     p: {};
   };
+};
+
+type CanvasCoords = {
+  x: number;
+  y: number;
+};
+
+type PenObj = {
+  position: CanvasCoords;
+  isDrawing: boolean;
 };
