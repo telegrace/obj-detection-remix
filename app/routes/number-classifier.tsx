@@ -1,6 +1,6 @@
 import React from "react";
 import { LinksFunction, MetaFunction } from "@remix-run/node";
-import stylesUrl from "~/styles/canvas.css";
+import stylesUrl from "~/styles/global-styles.css";
 import CanvasComponent from "~/components/CanvasComponent";
 
 export const links: LinksFunction = () => {

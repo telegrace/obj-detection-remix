@@ -25,6 +25,7 @@ const CanvasComponent: React.FC<any> = (props) => {
     isloaded: false,
   });
 
+  const [prediction, setPredition] = React.useState<number | null>(null);
   //canvas
   const canvasRef: CanvasRef = React.useRef(null);
   const canvas = canvasRef.current;
@@ -44,9 +45,15 @@ const CanvasComponent: React.FC<any> = (props) => {
   }, []);
 
   React.useEffect(() => {
+    if (prediction) {
+      console.log("prediction", prediction);
+    }
+  }, [prediction]);
+
+  React.useEffect(() => {
     if (pen.isDrawing && ctx) {
       ctx.beginPath();
-      ctx.lineWidth = 10;
+      ctx.lineWidth = 20;
       ctx.lineCap = "round";
       ctx.strokeStyle = "black";
       ctx.moveTo(pen.position.x, pen.position.y);
@@ -69,58 +76,71 @@ const CanvasComponent: React.FC<any> = (props) => {
     const imageData = ctx?.getImageData(0, 0, WIDTH, WIDTH);
 
     if (imageData) {
-      const tensor = tf.tensor(imageData.data);
-      const reshapedTensor = tensor.reshape([280, 280, 4]);
-      const alphaChannelInput = reshapedTensor
-        .resizeBilinear([28, 28]) // resize to 28x28
-        .slice([0, 0, 3], [28, 28, 1]) // get the alpha channel
-        .squeeze() // remove the extra dimension
-        .reshape([1, 28 * 28]) // reshape to a 1D tensor
-        .div(255); // normalize to [0, 1]
-      // .sub(1)
-      // .abs(); // //omit chanels imgs have 3/4 channels
+      let answer = tf.tidy(() => {
+        const tensor = tf.tensor(imageData.data);
+        const reshapedTensor = tensor.reshape([280, 280, 4]);
+        const alphaChannelInput = reshapedTensor
+          .resizeBilinear([28, 28]) // resize to 28x28
+          .slice([0, 0, 3], [28, 28, 1]) // get the alpha channel
+          .squeeze() // remove the extra dimension
+          .reshape([1, 28 * 28]) // reshape to a 1D tensor
+          .div(255); // normalize to [0, 1]
 
-      model.loadedModel.predict(alphaChannelInput).print();
+        return model.loadedModel.predict(alphaChannelInput);
+      });
+      answer.array().then((array: Array<Array<number>>) => {
+        const answerArr = array[0];
+
+        const max = Math.max(...answerArr);
+        const index = answerArr.indexOf(max);
+        console.log(index);
+        setPredition(index);
+        answer.dispose();
+      });
     }
   };
 
   return (
-    <div
-      onMouseUp={() => {
-        setPen({ ...pen, isDrawing: false });
-      }}
-    >
-      <canvas
-        id="canvas"
-        width={WIDTH}
-        height={WIDTH}
-        ref={canvasRef}
-        onMouseDown={() => {
-          setPen({ ...pen, isDrawing: true });
-        }}
-        onMouseMove={(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-          if (canvas) {
-            let x = e.clientX - canvas.offsetLeft;
-            let y = e.clientY - canvas.offsetTop;
-            setPen({ ...pen, position: { x, y } });
-          }
-        }}
-      />
-      <button
-        onClick={() => {
-          ctx?.clearRect(0, 0, WIDTH, WIDTH);
+    <>
+      <div
+        onMouseUp={() => {
+          setPen({ ...pen, isDrawing: false });
         }}
       >
-        Clear Canvas
-      </button>
-      <button
-        onClick={() => {
-          handlePredictButton();
-        }}
-      >
-        Predict
-      </button>
-    </div>
+        <canvas
+          id="canvas"
+          width={WIDTH}
+          height={WIDTH}
+          ref={canvasRef}
+          onMouseDown={() => {
+            setPen({ ...pen, isDrawing: true });
+          }}
+          onMouseMove={(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+            if (canvas) {
+              let x = e.clientX - canvas.offsetLeft;
+              let y = e.clientY - canvas.offsetTop;
+              setPen({ ...pen, position: { x, y } });
+            }
+          }}
+        />
+        <button
+          onClick={() => {
+            ctx?.clearRect(0, 0, WIDTH, WIDTH);
+          }}
+        >
+          Clear Canvas
+        </button>
+        <button
+          onClick={() => {
+            handlePredictButton();
+          }}
+        >
+          Predict
+        </button>
+      </div>
+      <h1>Predictions</h1>
+      {prediction && prediction}
+    </>
   );
 };
 
