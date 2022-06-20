@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "@remix-run/react"; //this just appends to the end
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
@@ -22,7 +21,7 @@ export const meta: MetaFunction = () => ({
   description: "Multi-Object Detection with Tensorflow.js",
 });
 
-const IndexPage: React.FC<any> = () => {
+const ObjectDetectionPage: React.FC<any> = () => {
   const videoRef: VideoRef = React.useRef(null);
   const [isStreaming, setIsStreaming] = React.useState<boolean>(false);
   const [model, setModel] = React.useState<Model>({
@@ -63,9 +62,9 @@ const IndexPage: React.FC<any> = () => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           videoRef.current.addEventListener("loadeddata", () => {
-            if (model.loadedModel && isStreaming) {
+            if (isStreaming) {
               // console.log("videoRef.current", videoRef.current); // this keeps the webcam running?
-              predictWebcam(model.loadedModel);
+              predictWebcam();
             }
           });
         }
@@ -75,33 +74,16 @@ const IndexPage: React.FC<any> = () => {
       });
   };
 
-  const predictWebcam = (model: cocoSsd.ObjectDetection) => {
-    if (videoRef.current) {
-      model
+  const predictWebcam = () => {
+    if (model.loadedModel) {
+      model.loadedModel
         .detect(videoRef.current as HTMLVideoElement)
         .then((predictions: Array<Prediction>) => {
           for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.66) {
-              const { bbox, score } = predictions[n];
-
-              predictions[n].confidence = Math.round(score * 100);
-
-              const highlighter = {
-                left: bbox[0] + "px",
-                top: bbox[1] + "px",
-                width: bbox[2] + "px",
-                height: bbox[3] + "px",
-              };
-              const p = {
-                marginLeft: bbox[0] + "px",
-                marginTop: bbox[1] - 10 + "px",
-                width: bbox[2] - 10 + "px",
-                top: 0,
-                left: 0,
-              };
-
-              predictions[n].HTMLStyle = { highlighter, p };
-
+              predictions[n].confidence = Math.round(
+                predictions[n].score * 100
+              );
               setPredictions(predictions);
             }
           }
@@ -111,7 +93,7 @@ const IndexPage: React.FC<any> = () => {
           return;
         });
       window.requestAnimationFrame(() => {
-        predictWebcam(model);
+        predictWebcam();
       });
     }
   };
@@ -127,21 +109,22 @@ const IndexPage: React.FC<any> = () => {
   return (
     <>
       <h1>
-        Multiple object detection using pre trained model in TensorFlow.js
+        Multiple object detection using a pre-trained model in TensorFlow.js
       </h1>
 
       <p>
-        Wait for the model to load before clicking the button to enable the
-        webcam - at which point it will become visible to use.
+        Wait for the{" "}
+        <a
+          target="_blank"
+          href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
+          rel="noreferrer"
+        >
+          COCO-SSD model
+        </a>{" "}
+        to load and click "enable webcam" to start predictions.
       </p>
 
       <section id="demos">
-        <p>
-          Hold some objects up close to your webcam to get a real-time
-          classification! When ready click "enable webcam" below and accept
-          access to the webcam when the browser asks (check the top left of your
-          window)
-        </p>
         <div>
           <div id="liveView" className="camView">
             <WebcamBtn
@@ -157,20 +140,8 @@ const IndexPage: React.FC<any> = () => {
           </div>
         </div>
       </section>
-
-      <p>
-        Further reading for
-        <a
-          target="_blank"
-          href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
-          rel="noreferrer"
-        >
-          COCO-SSD model
-        </a>
-        .
-      </p>
     </>
   );
 };
 
-export default IndexPage;
+export default ObjectDetectionPage;
