@@ -25,7 +25,7 @@ const PredictionsOverlay: React.FC<PredictionsOverlayProps> = ({
               style={{
                 marginLeft: prediction.bbox[0] + "px",
                 marginTop: prediction.bbox[1] - 10 + "px",
-                width: prediction.bbox[2] - 10 + "px",
+                width: prediction.bbox[2] + "px",
                 top: 0,
                 left: 0,
               }}

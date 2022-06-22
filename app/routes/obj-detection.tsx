@@ -88,9 +88,9 @@ const ObjectDetectionPage: React.FC<any> = () => {
           console.log("predictWebcam error: ", err);
           return;
         });
-      window.requestAnimationFrame(() => {
-        predictWebcam();
-      });
+      // window.requestAnimationFrame(() => {
+      //   predictWebcam();
+      // });
     }
   };
 
