@@ -3,8 +3,9 @@ import { Link } from "@remix-run/react";
 const LandingPage: React.FC<any> = () => {
   return (
     <>
-      <h1 className="text-3xl font-bold underline">TensorFlow.js</h1>
+      <h1>TensorFlow.js</h1>
       <p>Explore</p>
+      <p className="underline">The quick brown fox...</p>
       <ul>
         <li>
           <Link to="/number-classifier">Number Classifier</Link>

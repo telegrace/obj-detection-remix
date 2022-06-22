@@ -1,11 +1,6 @@
 import React from "react";
-import { LinksFunction, MetaFunction } from "@remix-run/node";
-import stylesUrl from "~/styles/global-styles.css";
+import { MetaFunction } from "@remix-run/node";
 import CanvasComponent from "~/components/CanvasComponent";
-
-export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
-};
 
 export const meta: MetaFunction = () => ({
   title: "Number Classifier",

@@ -1,12 +1,7 @@
 import React from "react";
 import * as tf from "@tensorflow/tfjs";
 import { CanvasRef, PenObj } from "~/typings";
-import { LinksFunction, MetaFunction } from "@remix-run/node";
-import stylesUrl from "~/styles/global-styles.css";
-
-export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
-};
+import { MetaFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => ({
   title: "Number Classifier",

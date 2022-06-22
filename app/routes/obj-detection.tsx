@@ -2,18 +2,14 @@ import React from "react";
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
-import stylesUrl from "~/styles/global-styles.css";
 import { Prediction, VideoRef } from "~/typings";
-import { LinksFunction, MetaFunction } from "@remix-run/node";
+import { MetaFunction } from "@remix-run/node";
 import WebcamBtn from "~/components/WebcamBtn";
 import PredictionsOverlay from "~/components/PredictionsOverlay";
 
 type Model = {
   loadedModel: cocoSsd.ObjectDetection | null;
   isloaded: boolean;
-};
-export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
 export const meta: MetaFunction = () => ({
