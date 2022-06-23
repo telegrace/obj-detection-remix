@@ -1,0 +1,7 @@
+[
+  { "title": "Home", "path": "/" },
+  { "title": "Number Classifier", "path": "/number-classifier" },
+  { "title": "Object Detection", "path": "/obj-detection" },
+  { "title": "About", "path": "/about" },
+  { "title": "Contact", "path": "/contact" }
+]

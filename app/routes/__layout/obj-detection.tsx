@@ -88,9 +88,9 @@ const ObjectDetectionPage: React.FC<any> = () => {
           console.log("predictWebcam error: ", err);
           return;
         });
-      // window.requestAnimationFrame(() => {
-      //   predictWebcam();
-      // });
+      window.requestAnimationFrame(() => {
+        predictWebcam();
+      });
     }
   };
 
@@ -104,38 +104,40 @@ const ObjectDetectionPage: React.FC<any> = () => {
 
   return (
     <>
-      <h1>
-        Multiple object detection using a pre-trained model in TensorFlow.js
-      </h1>
+      <div className="text-center">
+        <h1>
+          Multiple object detection using a pre-trained model in TensorFlow.js
+        </h1>
 
-      <p>
-        Wait for the{" "}
-        <a
-          target="_blank"
-          href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
-          rel="noreferrer"
-        >
-          COCO-SSD model
-        </a>{" "}
-        to load and click "enable webcam" to start predictions.
-      </p>
+        <p>
+          Wait for the{" "}
+          <a
+            target="_blank"
+            href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
+            rel="noreferrer"
+          >
+            COCO-SSD model
+          </a>{" "}
+          to load and click "enable webcam" to start predictions.
+        </p>
 
-      <section id="demos">
-        <div>
-          <div id="liveView" className="camView">
-            <WebcamBtn
-              isStreaming={isStreaming}
-              stopVideo={stopVideo}
-              startVideo={startVideo}
-              modelLoaded={model.isloaded}
-            />
-            {isStreaming && predictions && (
-              <PredictionsOverlay predictions={predictions} />
-            )}
-            {isStreaming && <video muted ref={videoRef} />}
+        <section id="demos">
+          <div>
+            <div id="liveView" className="camView">
+              <WebcamBtn
+                isStreaming={isStreaming}
+                stopVideo={stopVideo}
+                startVideo={startVideo}
+                modelLoaded={model.isloaded}
+              />
+              {isStreaming && predictions && (
+                <PredictionsOverlay predictions={predictions} />
+              )}
+              {isStreaming && <video muted ref={videoRef} />}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </>
   );
 };
