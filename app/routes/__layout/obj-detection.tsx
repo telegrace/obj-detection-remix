@@ -25,6 +25,7 @@ const ObjectDetectionPage: React.FC<any> = () => {
     isloaded: false,
   });
   const [predictions, setPredictions] = React.useState<Array<Prediction>>([]);
+  const [isWebcamLoaded, setIsWebcamLoaded] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (!model.isloaded) {
@@ -52,13 +53,14 @@ const ObjectDetectionPage: React.FC<any> = () => {
 
   const getVideo = () => {
     navigator.mediaDevices
-      .getUserMedia({ video: { width: 640, height: 480 } })
+      .getUserMedia({ video: true })
       .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           videoRef.current.addEventListener("loadeddata", () => {
             if (isStreaming) {
+              setIsWebcamLoaded(true);
               // console.log("videoRef.current", videoRef.current); // this keeps the webcam running?
               predictWebcam();
             }
@@ -104,39 +106,44 @@ const ObjectDetectionPage: React.FC<any> = () => {
 
   return (
     <>
-      <div className="text-center">
-        <h1>
-          Multiple object detection using a pre-trained model in TensorFlow.js
-        </h1>
+      <div className="intro mb-5">
+        <div className="text-center">
+          <h1>
+            Multiple object detection using a pre-trained model in TensorFlow.js
+          </h1>
 
-        <p>
-          Wait for the{" "}
-          <a
-            target="_blank"
-            href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
-            rel="noreferrer"
-          >
-            COCO-SSD model
-          </a>{" "}
-          to load and click "enable webcam" to start predictions.
-        </p>
-
-        <section id="demos">
-          <div>
-            <div id="liveView" className="camView">
-              <WebcamBtn
-                isStreaming={isStreaming}
-                stopVideo={stopVideo}
-                startVideo={startVideo}
-                modelLoaded={model.isloaded}
-              />
+          <p>
+            Wait for the{" "}
+            <a
+              target="_blank"
+              href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd"
+              rel="noreferrer"
+            >
+              COCO-SSD model
+            </a>{" "}
+            to load and click "enable webcam" to start predictions.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-col items-center justify-center space-y-6 px-4 sm:flex-row sm:space-x-6 sm:space-y-0">
+        <div className="w-1/2 h-70v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5">
+          <div className="flex justify-center ">
+            <WebcamBtn
+              isStreaming={isStreaming}
+              stopVideo={stopVideo}
+              startVideo={startVideo}
+              modelLoaded={model.isloaded}
+            />
+          </div>
+          <div className="webcamContainer">
+            <div id="liveView" className="camView ">
               {isStreaming && predictions && (
                 <PredictionsOverlay predictions={predictions} />
               )}
               {isStreaming && <video muted ref={videoRef} />}
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </>
   );

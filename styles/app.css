@@ -29,11 +29,14 @@ section {
   opacity: 0.2;
 }
 
+.webcamContainer {
+  display: flex;
+  justify-content: center;
+}
+
 .camView {
   position: relative;
   float: left;
-  /* width: calc(100% - 20px); */
-  /* margin: 10px; */
   cursor: pointer;
 }
 
