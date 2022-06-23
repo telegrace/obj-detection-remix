@@ -16,11 +16,6 @@ video {
   display: block;
 }
 
-section {
-  opacity: 1;
-  transition: opacity 500ms ease-in-out;
-}
-
 .removed {
   display: none;
 }
@@ -57,7 +52,8 @@ section {
   position: absolute;
 }
 
-canvas {
+canvas,
+.prediction {
   display: block;
   width: 280px;
   height: 280px;

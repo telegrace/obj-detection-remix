@@ -12,12 +12,17 @@ export type Prediction = {
   };
 };
 
-type CanvasCoords = {
+export type CanvasCoords = {
   x: number;
   y: number;
 };
 
-type PenObj = {
+export type PenObj = {
   position: CanvasCoords;
   isDrawing: boolean;
+};
+
+export type MNISTModel = {
+  loadedModel: any;
+  isloaded: boolean;
 };
