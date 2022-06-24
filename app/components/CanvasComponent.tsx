@@ -5,7 +5,7 @@ import ModelLoadingButton from "./ModelLoadingModel";
 
 interface CanvasComponentProps {
   prediction: number | null;
-  handlePrediction: (modelPrediction: number) => void;
+  handlePrediction: (modelPrediction: number | null) => void;
 }
 
 const CanvasComponent: React.FC<CanvasComponentProps> = ({
@@ -126,6 +126,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
                 <button
                   onClick={() => {
                     ctx?.clearRect(0, 0, WIDTH, WIDTH);
+                    handlePrediction(null);
                   }}
                   className="rounded-lg px-3 py-2 border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
                 >

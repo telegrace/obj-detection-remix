@@ -12,7 +12,7 @@ const MainLayout: React.FC = () => {
         {NavLinks.map((link) => {
           return (
             <Link to={link.path} key={link.title}>
-              <div className="-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900">
+              <div className="rounded-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900">
                 {link.title}
               </div>
             </Link>

@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => ({
 const NumberClassifier: React.FC = () => {
   const [prediction, setPredition] = React.useState<number | null>(null);
 
-  const handlePrediction = (modelPrediction: number) => {
+  const handlePrediction = (modelPrediction: number | null) => {
     setPredition(modelPrediction);
   };
   return (
