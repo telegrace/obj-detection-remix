@@ -10,9 +10,11 @@ const PredictionComponent: React.FC<PredictionComponentProps> = ({
       <div className="w-1/4 h-50v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5 flex justify-center">
         <div>
           <p className="mt-5 text-center">Prediction Here!</p>
-          <div className="flex prediction mt-5">
-            <div className="text-9xl text-center">
-              {prediction ? <p>{prediction}</p> : <p>?</p>}
+          <div className="prediction mt-5">
+            <div className="min-h-full flex items-center">
+              <div className="min-w-full text-9xl text-center">
+                {prediction ? <p>{prediction}</p> : <p>?</p>}
+              </div>
             </div>
           </div>
           <div className="flex mt-5 justify-center">
