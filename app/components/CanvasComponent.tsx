@@ -1,26 +1,23 @@
 import React from "react";
 import * as tf from "@tensorflow/tfjs";
-import { CanvasRef, PenObj } from "~/typings";
-import { MetaFunction } from "@remix-run/node";
+import { CanvasRef, MNISTModel, PenObj } from "~/typings";
+import ModelLoadingButton from "./ModelLoadingModel";
 
-export const meta: MetaFunction = () => ({
-  title: "Number Classifier",
-  description: "Number Classifier with Tensorflow.js",
-});
+interface CanvasComponentProps {
+  prediction: number | null;
+  handlePrediction: (modelPrediction: number | null) => void;
+}
 
-type MNISTModel = {
-  loadedModel: any;
-  isloaded: boolean;
-};
-
-const CanvasComponent: React.FC<any> = (props) => {
+const CanvasComponent: React.FC<CanvasComponentProps> = ({
+  prediction,
+  handlePrediction,
+}) => {
   //model
   const [model, setModel] = React.useState<MNISTModel>({
     loadedModel: null,
     isloaded: false,
   });
 
-  const [prediction, setPredition] = React.useState<number | null>(null);
   //canvas
   const canvasRef: CanvasRef = React.useRef(null);
   const canvas = canvasRef.current;
@@ -89,7 +86,7 @@ const CanvasComponent: React.FC<any> = (props) => {
         const max = Math.max(...answerArr);
         const index = answerArr.indexOf(max);
         console.log(index);
-        setPredition(index);
+        handlePrediction(index);
         answer.dispose();
       });
     }
@@ -97,45 +94,60 @@ const CanvasComponent: React.FC<any> = (props) => {
 
   return (
     <>
-      <p>Draw a single digit and run inference with the Predict button.</p>
-      <div
-        onMouseUp={() => {
-          setPen({ ...pen, isDrawing: false });
-        }}
-      >
-        <canvas
-          id="canvas"
-          width={WIDTH}
-          height={WIDTH}
-          ref={canvasRef}
-          onMouseDown={() => {
-            setPen({ ...pen, isDrawing: true });
-          }}
-          onMouseMove={(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-            if (canvas) {
-              let x = e.clientX - canvas.offsetLeft;
-              let y = e.clientY - canvas.offsetTop;
-              setPen({ ...pen, position: { x, y } });
-            }
-          }}
-        />
-        <button
-          onClick={() => {
-            ctx?.clearRect(0, 0, WIDTH, WIDTH);
+      <div className="w-1/4 h-50v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5 flex justify-center">
+        <div
+          onMouseUp={() => {
+            setPen({ ...pen, isDrawing: false });
           }}
         >
-          Clear Canvas
-        </button>
-        <button
-          onClick={() => {
-            handlePredictButton();
-          }}
-        >
-          Predict
-        </button>
+          <p className="mt-5 text-center">Draw Here!</p>
+          <canvas
+            className="mt-5"
+            id="canvas"
+            width={WIDTH}
+            height={WIDTH}
+            ref={canvasRef}
+            onMouseDown={() => {
+              setPen({ ...pen, isDrawing: true });
+            }}
+            onMouseMove={(
+              e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+            ) => {
+              if (canvas) {
+                let x = e.clientX - canvas.offsetLeft;
+                let y = e.clientY - canvas.offsetTop;
+                setPen({ ...pen, position: { x, y } });
+              }
+            }}
+          />
+          <div className="flex mt-5 justify-center">
+            {model.isloaded ? (
+              <>
+                <button
+                  onClick={() => {
+                    ctx?.clearRect(0, 0, WIDTH, WIDTH);
+                    handlePrediction(null);
+                  }}
+                  className="rounded-lg px-3 py-2 border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
+                >
+                  Clear Canvas
+                </button>
+
+                <button
+                  onClick={() => {
+                    handlePredictButton();
+                  }}
+                  className="rounded-lg px-3 py-2 border border-green-500 bg-green-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-green-600 focus:outline-none focus:shadow-outline"
+                >
+                  Predict
+                </button>
+              </>
+            ) : (
+              <ModelLoadingButton />
+            )}
+          </div>
+        </div>
       </div>
-      <h1>Predictions</h1>
-      {prediction && prediction}
     </>
   );
 };

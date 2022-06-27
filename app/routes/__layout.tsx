@@ -11,8 +11,8 @@ const MainLayout: React.FC = () => {
       <nav className="flex sm:justify-center space-x-4 my-5">
         {NavLinks.map((link) => {
           return (
-            <Link to={link.path}>
-              <div className="-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900">
+            <Link to={link.path} key={link.title}>
+              <div className="rounded-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900">
                 {link.title}
               </div>
             </Link>

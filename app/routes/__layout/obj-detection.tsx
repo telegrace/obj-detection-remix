@@ -108,9 +108,7 @@ const ObjectDetectionPage: React.FC<any> = () => {
     <>
       <div className="intro mb-5">
         <div className="text-center">
-          <h1>
-            Multiple object detection using a pre-trained model in TensorFlow.js
-          </h1>
+          <h1>Multiple Object Detection Using a Pre-trained Model</h1>
 
           <p>
             Wait for the{" "}
