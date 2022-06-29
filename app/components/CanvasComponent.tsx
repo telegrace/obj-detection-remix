@@ -2,6 +2,8 @@ import React from "react";
 import * as tf from "@tensorflow/tfjs";
 import { CanvasRef, MNISTModel, PenObj } from "~/typings";
 import ModelLoadingButton from "./ModelLoadingModel";
+import { json } from "@remix-run/node";
+import { fetchData } from "@remix-run/react/data";
 
 interface CanvasComponentProps {
   prediction: number | null;
