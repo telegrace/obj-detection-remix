@@ -56,8 +56,8 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   }, [pen]);
 
-  // const MODEL_PATH = "http://127.0.0.1:8080/mnist-model.json"
   const MODEL_PATH = "http://127.0.0.1:8080/model.json";
+  // const MODEL_PATH = "/api/model/model.json"; //doesn't work
 
   const loadModel = () => {
     tf.loadLayersModel(MODEL_PATH).then((loadedModel) => {
