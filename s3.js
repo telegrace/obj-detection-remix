@@ -26,34 +26,3 @@ const credentials = {
 
 export const s3 = new aws.S3(credentials);
 export const myBucket = secrets.BUCKET;
-
-const model = "model.json"; //these could be params?
-const weights = "model.weights.bin";
-
-// let bucketParamsModel = { Bucket: myBucket, Key: model };
-// let bucketParamsWeights = { Bucket: myBucket, Key: weights };
-
-// s3.getObject(bucketParamsModel)
-//   .then((data) => {
-//     //console.log(Buffer.from(data.Body).toString("utf-8"));
-//     streamToString(data.Body).then((model) => {
-//       console.log("model", model);
-//       return model;
-//     });
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
-
-// s3.getObject(bucketParamsWeights)
-//   .then((data) => {
-//     //console.log(Buffer.from(data.Body).toString("utf-8"));
-//     streamToString(data.Body).then((weights) => {
-//       console.log("weights", weights);
-//       return weights;
-//     });
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
-// https://mnist-model.s3.eu-central-1.amazonaws.com/model.json

@@ -56,7 +56,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   }, [pen]);
 
-  // const MODEL_PATH = "http://127.0.0.1:8080/model.json";
+  // const MODEL_PATH = "http://127.0.0.1:8080/model.json"; //./run-all.sh needs to be run to use this
   const MODEL_PATH = "/api/model/model.json"; //doesn't work
 
   const loadModel = () => {

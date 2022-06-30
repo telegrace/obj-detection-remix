@@ -1,19 +1,34 @@
 import { json } from "@remix-run/node";
 import { s3, myBucket, streamToString } from "s3";
-import model from "~/data/model.json";
 type Params = {
-  params: { modelName: string };
+  params: { modelName: "model.json" | "model.weights.bin" };
 };
 
-// the component will send a request this route
-// this route will make a request to the s3 bucket
-// this route will return the response from the s3 bucket
+const jsonResponse = (res: string) => {
+  return json(JSON.parse(res));
+};
 
-// export async function loader({ params }: Params) {
-//   return json(model);
-// }
+const binaryResponse = (res: string) => {
+  return new Response(res, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/octet-stream",
+    },
+  });
+};
+
+const responseTypes = {
+  "model.json": jsonResponse,
+  "model.weights.bin": binaryResponse,
+};
 
 export async function loader({ params }: Params) {
+  const responseFn = responseTypes[params.modelName];
+
+  if (!responseFn) {
+    throw new Error(`No response function for ${params.modelName}`);
+  }
+
   let bucketParamsModel = { Bucket: myBucket, Key: params.modelName };
   const res: string = await new Promise((resolve, reject) => {
     s3.getObject(bucketParamsModel)
@@ -27,5 +42,5 @@ export async function loader({ params }: Params) {
       });
   });
 
-  return json(JSON.parse(res));
+  return responseFn(res);
 }
