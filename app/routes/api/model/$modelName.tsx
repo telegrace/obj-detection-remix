@@ -1,29 +1,18 @@
 import { json } from "@remix-run/node";
-import { btoa } from "@remix-run/node/base64";
 import { s3, myBucket, streamToString } from "s3";
+
+//seperate API routes to be sure to call s3.getObject twice
+
 type Params = {
-  params: { modelName: "model.json" | "model.weights.bin" };
+  params: { modelName: "model.json" };
 };
 
 const jsonResponse = (res: string) => {
   return json(JSON.parse(res));
 };
 
-const binaryResponse = (res: string) => {
-  // console.log("🐙🐙🐙", res);
-  // res = btoa(res);
-  // console.log("🐙B🐙T🐙O🐙A🐙", res);
-  return new Response(res, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/octet-stream",
-    },
-  });
-};
-
 const responseTypes = {
   "model.json": jsonResponse,
-  "model.weights.bin": binaryResponse,
 };
 
 export async function loader({ params }: Params) {
@@ -37,7 +26,6 @@ export async function loader({ params }: Params) {
   const res: string = await new Promise((resolve, reject) => {
     s3.getObject(bucketParamsModel)
       .then((data) => {
-        // looked at the Headers for the gzip encoding
         streamToString(data.Body).then((model) => {
           resolve(model);
         });
