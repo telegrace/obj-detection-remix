@@ -2,6 +2,8 @@ import React from "react";
 import * as tf from "@tensorflow/tfjs";
 import { CanvasRef, MNISTModel, PenObj } from "~/typings";
 import ModelLoadingButton from "./ModelLoadingModel";
+import { json } from "@remix-run/node";
+import { fetchData } from "@remix-run/react/data";
 
 interface CanvasComponentProps {
   prediction: number | null;
@@ -54,12 +56,12 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   }, [pen]);
 
-  // const MODEL_PATH = "http://127.0.0.1:8080/mnist-model.json"
-  const MODEL_PATH = "http://127.0.0.1:8080/model.json";
+  // const MODEL_PATH = "http://127.0.0.1:8080/model.json"; //./run-all.sh needs to be run to use this
+  const MODEL_PATH = "/api/model/model.json"; //doesn't work
 
   const loadModel = () => {
     tf.loadLayersModel(MODEL_PATH).then((loadedModel) => {
-      console.log("loadedModel", loadedModel);
+      // console.log("loadedModel", loadedModel);
       setModel({ loadedModel, isloaded: true });
     });
   };
