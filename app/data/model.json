@@ -124,7 +124,7 @@
   "convertedBy": null,
   "weightsManifest": [
     {
-      "paths": ["model.weights.bin"],
+      "paths": ["./model.weights.bin"],
       "weights": [
         {
           "name": "dense_Dense1/kernel",

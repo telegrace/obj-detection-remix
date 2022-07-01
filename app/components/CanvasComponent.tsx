@@ -61,7 +61,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
   const loadModel = () => {
     tf.loadLayersModel(MODEL_PATH).then((loadedModel) => {
-      console.log("loadedModel", loadedModel);
+      // console.log("loadedModel", loadedModel);
       setModel({ loadedModel, isloaded: true });
     });
   };
