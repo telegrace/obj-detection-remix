@@ -1,3 +1,5 @@
+import { Blob } from "@remix-run/node/fetch";
+
 const aws = require("@aws-sdk/client-s3");
 
 let secrets;
@@ -21,7 +23,12 @@ export async function streamToBinary(stream) {
     const chunks = [];
     stream.on("data", (chunk) => chunks.push(chunk));
     stream.on("error", reject);
-    stream.on("end", () => resolve(Buffer.concat(chunks).toString("binary")));
+    stream.on("end", () => {
+      const blob = new Blob(chunks, { type: "binary" });
+      console.log("blob", blob);
+      resolve(blob);
+    });
+    // (method) BufferConstructor.concat(list: readonly Uint8Array[], totalLength?: number | undefined): Buffer
   });
 }
 
