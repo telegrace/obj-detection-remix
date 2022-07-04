@@ -96,7 +96,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
   return (
     <>
-      <div className="w-1/4 h-50v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5 flex justify-center">
+      <div className="lg:w-1/4 md:1/2  h-50v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5 flex justify-center">
         <div
           onMouseUp={() => {
             setPen({ ...pen, isDrawing: false });
