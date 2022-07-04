@@ -1,4 +1,4 @@
-import { s3, myBucket, streamToString, streamToBinary } from "s3";
+import { s3, myBucket, streamToBinary } from "s3";
 type Params = {
   params: { modelWeights: "model.weights.bin" };
 };

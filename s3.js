@@ -6,7 +6,7 @@ let secrets;
 if (process.env.NODE_ENV == "production") {
   secrets = process.env; // in prod the secrets are environment variables
 } else {
-  secrets = require("./token.json"); // in dev they are in secrets.json which is listed in .gitignore
+  secrets = require("./token.json");
 }
 
 export async function streamToString(stream) {
@@ -25,10 +25,8 @@ export async function streamToBinary(stream) {
     stream.on("error", reject);
     stream.on("end", () => {
       const blob = new Blob(chunks, { type: "binary" });
-      console.log("blob", blob);
       resolve(blob);
     });
-    // (method) BufferConstructor.concat(list: readonly Uint8Array[], totalLength?: number | undefined): Buffer
   });
 }
 
