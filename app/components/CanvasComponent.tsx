@@ -2,6 +2,8 @@ import React from "react";
 import * as tf from "@tensorflow/tfjs";
 import { CanvasRef, MNISTModel, PenObj } from "~/typings";
 import ModelLoadingButton from "./ModelLoadingModel";
+import { json } from "@remix-run/node";
+import { fetchData } from "@remix-run/react/data";
 
 interface CanvasComponentProps {
   prediction: number | null;
@@ -54,12 +56,12 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   }, [pen]);
 
-  // const MODEL_PATH = "http://127.0.0.1:8080/mnist-model.json"
-  const MODEL_PATH = "http://127.0.0.1:8080/model.json";
+  // const MODEL_PATH = "http://127.0.0.1:8080/model.json"; //./run-all.sh needs to be run to use this
+  const MODEL_PATH = "/api/model/model.json"; //doesn't work
 
   const loadModel = () => {
     tf.loadLayersModel(MODEL_PATH).then((loadedModel) => {
-      console.log("loadedModel", loadedModel);
+      // console.log("loadedModel", loadedModel);
       setModel({ loadedModel, isloaded: true });
     });
   };
@@ -94,7 +96,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
   return (
     <>
-      <div className="w-1/4 h-50v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5 flex justify-center">
+      <div className="lg:w-1/4 md:1/2  h-50v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5 flex justify-center">
         <div
           onMouseUp={() => {
             setPen({ ...pen, isDrawing: false });

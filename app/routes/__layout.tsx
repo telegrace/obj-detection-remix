@@ -8,7 +8,7 @@ const MainLayout: React.FC = () => {
       <div className="flex justify-center mt-5">
         <h1>TensorFlow.js X Remix.js</h1>
       </div>
-      <nav className="flex sm:justify-center space-x-4 my-5">
+      <nav className="flex justify-center space-x-4 my-5">
         {NavLinks.map((link) => {
           return (
             <Link to={link.path} key={link.title}>
