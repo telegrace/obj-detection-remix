@@ -59,7 +59,7 @@ const ObjectDetectionPage: React.FC<any> = () => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           videoRef.current.addEventListener("loadeddata", () => {
-            if (isStreaming) {
+            if (isStreaming && videoRef.current) {
               setIsWebcamLoaded(true);
               // console.log("videoRef.current", videoRef.current); // this keeps the webcam running?
               predictWebcam();
@@ -73,7 +73,7 @@ const ObjectDetectionPage: React.FC<any> = () => {
   };
 
   const predictWebcam = () => {
-    if (model.loadedModel) {
+    if (model.loadedModel && videoRef.current) {
       model.loadedModel
         .detect(videoRef.current as HTMLVideoElement)
         .then((predictions: Array<Prediction>) => {
@@ -123,8 +123,8 @@ const ObjectDetectionPage: React.FC<any> = () => {
           </p>
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center space-y-6 px-4 sm:flex-row sm:space-x-6 sm:space-y-0">
-        <div className="w-1/2 h-70v h-overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-5">
+      <div className="flex justify-center ">
+        <div className=" md:w-screen lg:w-1/2  h-50vh rounded-lg bg-white shadow-md duration-300 hover:shadow-lg border-solid border-2 border-gray-100 p-8 ">
           <div className="flex justify-center ">
             <WebcamBtn
               isStreaming={isStreaming}
