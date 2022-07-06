@@ -1,5 +1,3 @@
-import { Blob } from "@remix-run/node/fetch";
-
 const aws = require("@aws-sdk/client-s3");
 
 let secrets;
@@ -25,7 +23,6 @@ export async function streamToBinary(stream) {
     stream.on("error", reject);
     stream.on("end", () => {
       const blob = new Blob(chunks, { type: "binary" });
-      console.log("blob", blob);
       resolve(blob);
     });
     // (method) BufferConstructor.concat(list: readonly Uint8Array[], totalLength?: number | undefined): Buffer
