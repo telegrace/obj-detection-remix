@@ -26,7 +26,7 @@ const NumberClassifier: React.FC = () => {
           </p>
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center space-y-6 px-4 sm:flex-row sm:space-x-6 sm:space-y-0">
+      <div className="flex justify-center space-y-6  sm:space-x-6 sm:space-y-0">
         <CanvasComponent
           prediction={prediction}
           handlePrediction={handlePrediction}
